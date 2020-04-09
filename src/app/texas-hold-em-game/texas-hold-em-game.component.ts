@@ -1,5 +1,6 @@
 import { Game } from './../models/game';
 import { Component, OnInit } from '@angular/core';
+import { Player } from '../models/player';
 
 @Component({
   selector: 'app-texas-hold-em-game',
@@ -10,6 +11,7 @@ export class TexasHoldEmGameComponent implements OnInit {
   private game: Game;
   public smallBlind: number;
   public bigBlind: number;
+  private potSize: number;
 
   constructor() {
     this.game = new Game();
@@ -20,7 +22,7 @@ export class TexasHoldEmGameComponent implements OnInit {
   }
 
   AddPlayer() {
-
+    this.game.Players.push(new Player(1500, 'Lee'));
   }
 
   Deal() {
@@ -36,6 +38,10 @@ export class TexasHoldEmGameComponent implements OnInit {
   }
 
   DealRiver() {
+
+  }
+
+  GetPotSize() {
 
   }
 

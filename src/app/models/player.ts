@@ -11,6 +11,7 @@ export class Player {
         } else {
             this.stack -= amount;
             return true;
+            // raise event to increate Pot size
         }
     }
 
