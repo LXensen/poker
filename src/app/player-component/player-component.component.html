@@ -1,1 +1,54 @@
-<p>player-component works!</p>
+    <div class="card-body">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{player.name}}</h5>
+            <span class="badge badge-primary badge-pill">{{player.GetStack()}}</span>
+          </div>
+          <p class="card-text"></p>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
+            <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="button-addon2" (click)="Bet(player)">Bet</button>
+            </div>
+        </div>
+        <br />
+        <button type="button" class="btn btn-primary btn-lg" (click)="FoldHand(player)">Fold Hand</button> &nbsp; 
+        <!-- <button type="button" class="btn btn-secondary btn-sm">Remove Player</button> &nbsp;
+        <button type="button" class="btn btn-primary btn-sm" (click)="WinsHand(player)">Wins Hand</button> -->
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox" aria-label="Checkbox for following text input" >
+                </div>
+                </div>
+                <input type="text" class="form-control" aria-label="Text input with checkbox" value="Remove Player">
+            </div><div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox" aria-label="Checkbox for following text input">
+                </div>
+                </div>
+                <input type="text" class="form-control" aria-label="Text input with checkbox" value="Wins Hand">
+            </div>    
+    </div>
+
+
+    <!-- <div class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{player.name}}</h5>
+          <span class="badge badge-primary badge-pill">{{player.GetStack()}}</span>
+        </div>
+        <p class="mb-1"> &nbsp; </p>
+         <p class="mb-1"><a href="#" class="btn btn-secondary">Remove Player</a> &nbsp; <a href="#" class="btn btn-primary btn-lg">Fold</a> </p> 
+
+        <div class="container">
+            <div class="row">
+              <div class="col-sm-4">        
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" id="button-addon2">Bet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
