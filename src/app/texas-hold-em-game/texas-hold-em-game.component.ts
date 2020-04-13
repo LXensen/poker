@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { Player } from '../models/player';
 import { AngularFirestore } from '@angular/fire/firestore';
 
-export interface Plyr { Name: string; Stack: number; }
+// export interface Plyr { Name: string; Stack: number; }
 
 @Component({
   selector: 'app-texas-hold-em-game',
