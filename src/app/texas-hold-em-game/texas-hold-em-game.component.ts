@@ -19,33 +19,29 @@ export class TexasHoldEmGameComponent implements OnInit {
   addNewPlayerButtonEnabled = false;
   games: Observable<any[]>;
 
-  allPlayers = new Array<Plyr>();
-
   constructor(private broker: GameHubBrokerService, firestore: AngularFirestore) {
     this.broker.ShowFireBaseItem().subscribe((val) => {
       // tslint:disable-next-line:no-debugger
-      debugger;
+      // debugger;
       // this.games = val;
     });
-    this.plyrs = this.broker.ShowFireBasePlayers();
+    // this.plyrs = this.broker.ShowFireBasePlayers();
    }
 
   ngOnInit() {
-    this.broker.ShowFireBasePlayer().subscribe((val) => {
+    this.broker.ShowFireBasePlayers().subscribe((val) => {
       // tslint:disable-next-line:no-debugger
-      // debugger;
-      this.plyr = val;
+      debugger;
     });
   }
 
-  AddPlayer(name: string) {
-    this.broker.AddPlayer(new Player(5, name));
-
+  AddPlayer(name: string, buyin: number) {
+    this.broker.AddPlayer(new Player(buyin, name));
   }
 
   Players(): Array<Player> {
-    // return (this.holdEmGame ? this.holdEmGame.Players : new Array<Player>());
     return (this.broker.CurrentHoldEmGame() ? this.broker.CurrentHoldEmGame().Players : new Array<Player>());
+    // return (this.broker.CurrentHoldEmGame() ? this.broker.ShowFireBasePlayers() : new Array<Player>());
   }
 
   Deal() {
@@ -69,8 +65,8 @@ export class TexasHoldEmGameComponent implements OnInit {
   }
 
   NewGame(smblind: number, bgblind: number, buyin: number) {
-    // this.broker.NewTexasHoldEmGame(new TexasHoldEm(smblind, bgblind));
-    // this.broker.CurrentHoldEmGame().Deck.Shuffle();
+    this.broker.NewTexasHoldEmGame(new TexasHoldEm(smblind, bgblind));
+    this.broker.CurrentHoldEmGame().Deck.Shuffle();
     this.addNewPlayerButtonEnabled = true;
   }
 

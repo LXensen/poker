@@ -1,4 +1,4 @@
-    <div class="card-body">
+    <!-- <div class="card-body">
         <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{player.name}}</h5>
             <span class="badge badge-primary badge-pill">{{player.GetStack()}}</span>
@@ -12,8 +12,6 @@
         </div>
         <br />
         <button type="button" class="btn btn-primary btn-lg" (click)="FoldHand(player)">Fold Hand</button> &nbsp; 
-        <!-- <button type="button" class="btn btn-secondary btn-sm">Remove Player</button> &nbsp;
-        <button type="button" class="btn btn-primary btn-sm" (click)="WinsHand(player)">Wins Hand</button> -->
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                 <div class="input-group-text">
@@ -30,26 +28,25 @@
                 </div>
                 <input type="text" class="form-control" aria-label="Text input with checkbox" value="Wins Hand">
             </div>    
-    </div>
+    </div> -->
 
-
-    <!-- <div class="list-group-item list-group-item-action">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">{{player.name}}</h5>
-          <span class="badge badge-primary badge-pill">{{player.GetStack()}}</span>
-        </div>
-        <p class="mb-1"> &nbsp; </p>
-         <p class="mb-1"><a href="#" class="btn btn-secondary">Remove Player</a> &nbsp; <a href="#" class="btn btn-primary btn-lg">Fold</a> </p> 
-
-        <div class="container">
-            <div class="row">
-              <div class="col-sm-4">        
-                <div class="input-group mb-3">
+    <div class="w-75 card">
+        <div class="card-header bg-transparent">{{player.name}}  <span class="badge badge-info">$ {{player.GetStack()}}</span></div>
+            <div class="card-body">
+                <img class="card-img-top w-50" src="assets/images/2C.png" alt="Card1">
+                <img class="card-img-top w-50" src="assets/images/5H.png" alt="Card1"> 
+                <br /><br />
+                <div class="input-group input-group-lg mb-3">
                     <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
                     <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="button-addon2">Bet</button>
+                    <button class="btn btn-primary" type="button" id="button-addon2" (click)="Bet(player)">Bet</button>
                     </div>
                 </div>
-            </div>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="FoldHand(player)">Fold</button>&nbsp;
+                <button type="button" class="btn btn-secondary btn-sm">Check</button>&nbsp;
+                <button type="button" class="btn btn-secondary btn-sm">View</button> 
+              </div>
+        <div class="card-footer">
+          <small class="text-muted">Bet amount, blind type</small>
         </div>
-    </div> -->
+    </div>   

@@ -21,23 +21,53 @@ export class Deck {
           this.cards[m] = this.cards[i];
           this.cards[i] = t;
         }
-        // return array;
+        // return this.cards;
     }
 
     private InitCards() {
+        let convertedRank: string;
         for (const suit in Card.Suit) {
             if (!Number(suit)) {
-                let score = 1;
+                let score = 2;
                 for (const rank in Card.Rank) {
                      if (!Number(rank)) {
-                         this.cards.push(new Card(suit as Card.Suit, rank as Card.Rank, score));
+                         const suitChar = suit.charAt(0);
+                         const rankMod = Number(this.getEnumKeyByValue(rank));
+                         if (rankMod > 10) {
+                            switch (rankMod) {
+                                case 11: {
+                                    convertedRank = 'J';
+                                    break;
+                                }
+                                case 12: {
+                                    convertedRank = 'Q';
+                                    break;
+                                }
+                                case 13: {
+                                    convertedRank = 'K';
+                                    break;
+                                }
+                                case 14: {
+                                    convertedRank = 'A';
+                                    break;
+                                }
+                            }
+                         } else {
+                             convertedRank = rankMod.toString();
+                         }
+                         this.cards.push(new Card(Card.Suit[suit], Card.Rank[rank.toString()], score, convertedRank + suitChar));
                          score++;
                      }
                  }
             }
         }
         // this.cards.forEach(card => {
-        //     console.log(card.rank + card.suit + ' ' + card.score);
+        //     console.log(card.cardRank + ' ' + card.cardSuit + ' ' + card.score + ' ' + card.url);
         // });
+    }
+
+    private getEnumKeyByValue(value) {
+        const keys = Object.keys(Card.Rank).filter(x => Card.Rank[x] === value);
+        return keys.length > 0 ? keys[0] : null;
     }
 }

@@ -1,0 +1,38 @@
+
+    <div class="container">
+        <div class="row">
+          <div class="col">
+            <div *ngIf="players.length===1" >
+                <app-player-component [player]="players[0]"></app-player-component>
+            </div>
+          </div>
+          <div class="col">
+            content 1,2         
+          </div>
+          <div class="col">
+            content, 3          
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            content 2,1           
+          </div>
+          <div class="col">
+            content 2, 2 - FLOP
+          </div>
+          <div class="col">
+            content 2, 3          
+          </div>
+        </div>
+        <div class="row">
+            <div class="col">
+              content 3,1           
+            </div>
+            <div class="col">
+              content 3, 2 
+            </div>
+            <div class="col">
+               content 3, 3          
+            </div>
+          </div>        
+      </div>
