@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { GameHubBrokerService, Plyr } from './../services/game-hub-broker.service';
+import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { TexasHoldEm } from './../models/texas-hold-em';
 import { Component, OnInit } from '@angular/core';
 import { Player } from '../models/player';
@@ -13,8 +13,8 @@ import { AngularFirestore } from '@angular/fire/firestore';
   styleUrls: ['./texas-hold-em-game.component.css']
 })
 export class TexasHoldEmGameComponent implements OnInit {
-  plyrs: Observable<Plyr[]>;
-  plyr: Observable<Plyr>;
+  plyrs: Observable<Player[]>;
+  plyr: Observable<Player>;
   private potSize: number;
   addNewPlayerButtonEnabled = false;
   games: Observable<any[]>;
@@ -24,6 +24,11 @@ export class TexasHoldEmGameComponent implements OnInit {
       // tslint:disable-next-line:no-debugger
       // debugger;
       // this.games = val;
+      val.forEach((x) => {
+        const b = '';
+        // tslint:disable-next-line:no-debugger
+        // debugger;
+      });
     });
     // this.plyrs = this.broker.ShowFireBasePlayers();
    }

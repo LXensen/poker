@@ -2,7 +2,8 @@
     <div class="container">
         <div class="row">
           <div class="col">
-            <div *ngIf="players.length===1" >
+            <div *ngIf="players" >
+              
                 <app-player-component [player]="players[0]"></app-player-component>
             </div>
           </div>
