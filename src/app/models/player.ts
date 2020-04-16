@@ -1,7 +1,8 @@
 export class Player {
     private canBet = true;
+    private docRef: string;
     constructor(private stack: number, readonly name: string) {
-
+        this.docRef = '_' + Math.random().toString(36).substr(2, 9);
     }
 
     // tslint:disable-next-line:typedef-whitespace
@@ -13,6 +14,10 @@ export class Player {
             return true;
             // raise event to increate Pot size
         }
+    }
+
+    DocumentRef(): string {
+        return this.docRef;
     }
 
     Ante(amount: number) {

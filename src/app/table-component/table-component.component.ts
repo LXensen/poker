@@ -1,7 +1,6 @@
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { Player } from './../models/player';
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component,  OnInit,  ComponentFactoryResolver,  Injector,  Input} from '@angular/core';
 
 @Component({
   selector: 'app-table-component',
@@ -9,15 +8,27 @@ import { Observable } from 'rxjs';
   styleUrls: ['./table-component.component.css']
 })
 export class TableComponentComponent implements OnInit {
-  public players: Observable<Player>;
+  @Input()
+  set players(value: Array<Player>) {
+    this.allPlayers = value;
+  }
+
+  isGameReady = false;
+
+  allPlayers = new Array<Player>();
 
   constructor(private broker: GameHubBrokerService) { }
 
   ngOnInit(): void {
-    this.broker.ShowFireBasePlayers().subscribe((val) => {
-      // tslint:disable-next-line:no-debugger
-      debugger;
+    this.broker.IsGameReady().subscribe((value) => {
+      this.isGameReady = value.Ready;
     });
-  }
-
+    this.broker.ShowFireBasePlayersCollection().subscribe((val) => {
+      return val.map(res => {
+        // this.allPlayers.push(new Player(res.Stack, res.Name));
+          // tslint:disable-next-line:no-debugger
+        debugger;
+      });
+    });
+    }
 }

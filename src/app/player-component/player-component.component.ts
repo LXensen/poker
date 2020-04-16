@@ -1,3 +1,4 @@
+import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { Player } from './../models/player';
 import { Component, OnInit, Input } from '@angular/core';
 
@@ -8,10 +9,17 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class PlayerComponentComponent implements OnInit {
 
-  @Input() player: Player;
-  constructor() { }
+  @Input()
+  set player(p: Player) {
+    // debugger;
+    // this.broker.LoadPlayer().subscribe((val) => {
+    //   debugger;
+    // });
+  }
+  constructor(private broker: GameHubBrokerService) { }
 
   ngOnInit() {
+
   }
 
   FoldHand(player: Player) {

@@ -3,7 +3,7 @@ import { AngularFirestore, AngularFirestoreDocument, AngularFirestoreCollection 
 import { TexasHoldEm } from './../models/texas-hold-em';
 import { Player } from './../models/player';
 import { Deck } from './../models/deck';
-import { Observable, of, observable } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 
@@ -12,7 +12,6 @@ import { Injectable } from '@angular/core';
 })
 export class GameHubBrokerService {
   private holdem: TexasHoldEm;
-  private simplePlayers = new Array<any>();
 
   playersList: Observable<any[]>;
 
@@ -20,20 +19,21 @@ export class GameHubBrokerService {
   plyrsDoc: AngularFirestoreDocument<Player>;
   plyrs: Observable<Player>;
 
-  plyrsColRef: AngularFirestoreCollection<Player>;
-  plyrsCol: Observable<Player[]>;
+  plyrsColRef: AngularFirestoreCollection<any>;
+  plyrsCol: Observable<any[]>;
+  gameState: Observable<any>;
 
   constructor(protected firestore: AngularFirestore) {
     this.game = firestore.collection('NEWGAME').valueChanges();
 
     this.plyrsColRef = firestore.collection<Player>('Game3', ref => ref.where('GameRef', '==', 'Game3'));
-    this.plyrsColRef.valueChanges().subscribe(elem => {
-      // tslint:disable-next-line:no-debugger
-      debugger;
-      return of(elem);
-    });
+    this.plyrsCol = this.plyrsColRef.valueChanges(); // .subscribe(elem => {
+    //   // tslint:disable-next-line:no-debugger
+    //   debugger;
+    //   // return of(elem);
+    // });
 
-    this.plyrs = this.plyrsDoc.valueChanges();
+    this.gameState = firestore.collection('Game3').doc('GameState').valueChanges();
     // this.plyrsDoc = firestore.collection('NEWGAME').doc('Players');
     // this.plyrs = this.plyrsDoc.valueChanges();
 
@@ -45,6 +45,10 @@ export class GameHubBrokerService {
     // this.playersList = db.list('/players').valueChanges();
   }
 
+  // getGameState(): Observable<boolean> {
+  //   return this.gameReady.asObservable();
+  // }
+
   NewTexasHoldEmGame(holdemGame: TexasHoldEm) {
     // this.firestore.collection('NEWGAME').doc('Players').update({
       // firebase.firestore.FieldValue.arrayu
@@ -54,16 +58,43 @@ export class GameHubBrokerService {
   }
 
   AddPlayer(player: Player) {
-    this.holdem.Players.push(player);
-    this.simplePlayers.push({Name: player.name, Stack: player.GetStack()});
+    this.firestore.collection('Game3').add({
+      GameRef: 'Game3',
+      Name: player.name,
+      Stack: player.GetStack()
+    });
+    // this.holdem.Players.push(player);
+    // this.simplePlayers.push({Name: player.name, Stack: player.GetStack()});
     // tslint:disable-next-line:no-debugger
     // debugger;
-    this.firestore.collection('NEWGAME').doc('Players').set({Players : this.simplePlayers});
+    // this.firestore.collection('NEWGAME').doc('Players').set({Players : this.simplePlayers});
     // firebase.firestore.FieldValue.
   }
 
   ShowFireBaseItem(): Observable<any[]> {
     return this.game;
+  }
+
+  ShowFireBasePlayersCollection(): Observable<any[]> {
+      this.plyrsCol.subscribe((val) => {
+        val.forEach(res => {
+          // tslint:disable-next-line:no-debugger
+          // debugger;
+          // allplayers.push(new Player(res.Stack, res.Name));
+          // this.arrayPlayers.push(new Player(res.Stack, res.Name));
+      });
+    });
+    // tslint:disable-next-line:no-debugger
+    //  debugger;
+      return this.plyrsCol;
+  }
+
+  IsGameReady(): Observable<any> {
+    return this.gameState;
+  }
+
+  LoadPlayer(docRef: string): Observable<any> {
+    return this.firestore.collection('Game3').doc(docRef).valueChanges();
   }
 
   ShowFireBasePlayers(): Observable<Player> {
@@ -72,5 +103,13 @@ export class GameHubBrokerService {
 
   CurrentHoldEmGame(): TexasHoldEm {
     return this.holdem;
+  }
+
+  StartGame(players: Array<Player>) {
+    players.forEach(player => {
+      this.firestore.collection('Game3').doc(player.DocumentRef()).set({stack: player.GetStack(), name: player.name, gameRef: 'Game3'});
+    });
+
+    this.firestore.collection('Game3').doc('GameState').update({Ready: true});
   }
 }

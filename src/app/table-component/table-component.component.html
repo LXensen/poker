@@ -1,39 +1,46 @@
-
-    <div class="container">
-        <div class="row">
-          <div class="col">
-            <div *ngIf="players" >
-              
-                <app-player-component [player]="players[0]"></app-player-component>
-            </div>
-          </div>
-          <div class="col">
-            content 1,2         
-          </div>
-          <div class="col">
-            content, 3          
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            content 2,1           
-          </div>
-          <div class="col">
-            content 2, 2 - FLOP
-          </div>
-          <div class="col">
-            content 2, 3          
-          </div>
-        </div>
-        <div class="row">
-            <div class="col">
-              content 3,1           
-            </div>
-            <div class="col">
-              content 3, 2 
-            </div>
-            <div class="col">
-               content 3, 3          
-            </div>
-          </div>        
+<div class="container" *ngIf="isGameReady" >
+    <div class="row">
+      <div class="col">
+        <app-player-component [player]="allPlayers[0]"></app-player-component>
       </div>
+      <div class="col">
+        <app-player-component [player]="allPlayers[1]"></app-player-component>
+      </div>
+      <div class="col">
+        <app-player-component ></app-player-component>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <app-player-component ></app-player-component>
+      </div>
+      <div class="col">
+        content 2, 2 - FLOP
+      </div>
+      <div class="col">
+        <app-player-component ></app-player-component>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <app-player-component ></app-player-component>
+        </div>
+        <div class="col">
+            <app-player-component ></app-player-component>
+        </div>
+        <div class="col">
+            <app-player-component ></app-player-component>
+        </div>
+      </div>     
+
+  </div>
+
+<ng-template #emptyRow1Cell1>
+    Row 1 Cell 1
+</ng-template>
+    <ng-template #emptyRow1Cell2>
+            Row 1 Cell 2
+    </ng-template>
+    <ng-template #emptyRow1Cell3>
+            Row 1 Cell 3
+    </ng-template> 

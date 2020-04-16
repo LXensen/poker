@@ -1,11 +1,10 @@
+import { TableComponentComponent } from './../table-component/table-component.component';
 import { Observable } from 'rxjs';
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { TexasHoldEm } from './../models/texas-hold-em';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { Player } from '../models/player';
 import { AngularFirestore } from '@angular/fire/firestore';
-
-// export interface Plyr { Name: string; Stack: number; }
 
 @Component({
   selector: 'app-texas-hold-em-game',
@@ -13,16 +12,16 @@ import { AngularFirestore } from '@angular/fire/firestore';
   styleUrls: ['./texas-hold-em-game.component.css']
 })
 export class TexasHoldEmGameComponent implements OnInit {
-  plyrs: Observable<Player[]>;
+  @ViewChild('child') childComp: TableComponentComponent;
+
+  public parentplayers = new Array();
   plyr: Observable<Player>;
-  private potSize: number;
-  addNewPlayerButtonEnabled = false;
   games: Observable<any[]>;
 
   constructor(private broker: GameHubBrokerService, firestore: AngularFirestore) {
     this.broker.ShowFireBaseItem().subscribe((val) => {
       // tslint:disable-next-line:no-debugger
-      // debugger;
+      debugger;
       // this.games = val;
       val.forEach((x) => {
         const b = '';
@@ -34,14 +33,14 @@ export class TexasHoldEmGameComponent implements OnInit {
    }
 
   ngOnInit() {
-    this.broker.ShowFireBasePlayers().subscribe((val) => {
-      // tslint:disable-next-line:no-debugger
-      debugger;
-    });
+    // this.broker.ShowFireBasePlayers().subscribe((val) => {
+    //   // tslint:disable-next-line:no-debugger
+    // });
   }
 
   AddPlayer(name: string, buyin: number) {
-    this.broker.AddPlayer(new Player(buyin, name));
+    // this.broker.AddPlayer(new Player(buyin, name));
+    this.parentplayers.push(new Player(buyin, name));
   }
 
   Players(): Array<Player> {
@@ -72,7 +71,10 @@ export class TexasHoldEmGameComponent implements OnInit {
   NewGame(smblind: number, bgblind: number, buyin: number) {
     this.broker.NewTexasHoldEmGame(new TexasHoldEm(smblind, bgblind));
     this.broker.CurrentHoldEmGame().Deck.Shuffle();
-    this.addNewPlayerButtonEnabled = true;
   }
 
+  StartGame() {
+    this.childComp.players = this.parentplayers;
+    this.broker.StartGame(this.parentplayers);
+  }
 }

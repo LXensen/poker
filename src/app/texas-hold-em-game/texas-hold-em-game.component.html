@@ -12,7 +12,10 @@
         <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="NewGame(smblind.value, bgblind.value, buyin.value)">New Game</button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input class="form-control mr-sm-2" #playerName type="text" placeholder="Name" aria-label="Name">
-        <button type="button" class="btn btn-primary" (click)="AddPlayer(playerName.value, buyin.value)" [disabled]="!addNewPlayerButtonEnabled" >Add Player</button>        
+        <button type="button" class="btn btn-primary" (click)="AddPlayer(playerName.value, buyin.value)">Add Player</button>     
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input class="form-control mr-sm-2" #blindDuration type="text" placeholder="Duration" aria-label="Duration">
+        <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="StartGame()">Start Game</button>   
       </form>
 
     </div>
@@ -22,10 +25,7 @@
     
     <div class="starter-template">
         <br /><br /><br />
-        <app-table-component></app-table-component>
-        <!-- <div class="card w-50" *ngFor="let player of Players()" >
-            <app-player-component [player]="player"></app-player-component>
-        </div> -->
+        <app-table-component #child [players]="parentplayers"></app-table-component>
     </div>
 
     <div>
@@ -35,51 +35,7 @@
             </li>
         </ul>
     </div>
-    <div>       </div>
+    <div>       
 
-<!-- 
-    <div class="container">
-        <div class="row">
-          <div class="col">
-            content 1,1
-          </div>
-          <div class="col">
-content 1,2         
-          </div>
-          <div class="col">
-            <div class="w-75 card">
-                <div class="card-header bg-transparent">Player Name <span class="badge badge-info">$ 1422</span></div>
-                    <div class="card-body">
-                        <img class="card-img-top w-50" src="assets/images/2C.png" alt="Card1">
-                        <img class="card-img-top w-50" src="assets/images/5H.png" alt="Card1"> 
-                        <br /><br />
-                        <div class="input-group input-group-lg mb-3">
-                            <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
-                            <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="button-addon2">Bet</button>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-secondary btn-sm">Fold</button>&nbsp;
-                        <button type="button" class="btn btn-secondary btn-sm">Check</button>&nbsp;
-                        <button type="button" class="btn btn-secondary btn-sm">View</button> 
-                      </div>
-                <div class="card-footer">
-                  <small class="text-muted">Bet amount, blind type</small>
-                </div>
-            </div>            
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            content 2,1           
-          </div>
-          <div class="col">
-            content 2, 2 - FLOP
-          </div>
-          <div class="col">
- content 2, 3          
-          </div>
-        </div>
-      </div> -->
-
+    </div>
 </main>
