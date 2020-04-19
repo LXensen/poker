@@ -9,13 +9,15 @@ import { TexasHoldEmGameComponent } from './texas-hold-em-game/texas-hold-em-gam
 import { PlayerComponentComponent } from './player-component/player-component.component';
 import { environment } from '../environments/environment';
 import { TableComponentComponent } from './table-component/table-component.component';
+import { FlopComponentComponent } from './flop-component/flop-component.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TexasHoldEmGameComponent,
     PlayerComponentComponent,
-    TableComponentComponent
+    TableComponentComponent,
+    FlopComponentComponent
   ],
   imports: [
     BrowserModule,

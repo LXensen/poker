@@ -1,4 +1,7 @@
-<div class="container" *ngIf="isGameReady" >
+<div class="container" *ngIf="isGameReady" > 
+    <div class="row">
+        <br />
+    </div>  
     <div class="row">
       <div class="col">
         <app-player-component [player]="allPlayers[0]"></app-player-component>
@@ -7,29 +10,29 @@
         <app-player-component [player]="allPlayers[1]"></app-player-component>
       </div>
       <div class="col">
-        <app-player-component ></app-player-component>
+        <app-player-component [player]="allPlayers[2]"></app-player-component>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <app-player-component ></app-player-component>
+        <app-player-component [player]="allPlayers[3]"></app-player-component>          
       </div>
       <div class="col">
-        content 2, 2 - FLOP
+        <app-flop-component></app-flop-component>
       </div>
       <div class="col">
-        <app-player-component ></app-player-component>
+
       </div>
     </div>
     <div class="row">
         <div class="col">
-            <app-player-component ></app-player-component>
+
         </div>
         <div class="col">
-            <app-player-component ></app-player-component>
+
         </div>
         <div class="col">
-            <app-player-component ></app-player-component>
+
         </div>
       </div>     
 

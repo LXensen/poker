@@ -5,7 +5,7 @@
     </button>
     
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-      <form class="form-inline my-2 my-lg-0">
+      <form class="form-inline mx-sm-3 mb-2">
         <input class="form-control mr-sm-2" #smblind type="text" placeholder="Small Blind" aria-label="Small Blind">
         <input class="form-control mr-sm-2" #bgblind type="text" placeholder="Big Blind" aria-label="Big Blind">
         <input class="form-control mr-sm-2" #buyin type="text" placeholder="Buy in" aria-label="Buy in">
@@ -25,17 +25,18 @@
     
     <div class="starter-template">
         <br /><br /><br />
-        <app-table-component #child [players]="parentplayers"></app-table-component>
-    </div>
-
-    <div>
-        <ul>
-            <li *ngFor="let game of games | async" >
-                <pre>{{ game | json }}</pre>
-            </li>
-        </ul>
-    </div>
-    <div>       
-
+        <div class="container" *ngIf="isGameReady">
+          <div class="row">
+              <div class="col">
+                  <button type="button" class="btn btn-info" (click)="Deal()">Deal</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                  <button type="button" class="btn btn-info" (click)="DealFlop()">Flop</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                  <button type="button" class="btn btn-info" (click)="DealTurn()">Turn</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                  <button type="button" class="btn btn-info" (click)="DealRiver()">River</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <button type="button" class="btn btn-info">Winner</button>&nbsp;&nbsp;
+                  <button type="button" class="btn btn-info"  (click)="NewHand()">New Hand</button>
+              </div>
+            </div>     
+        </div>     
+        <app-table-component #child ></app-table-component>
     </div>
 </main>

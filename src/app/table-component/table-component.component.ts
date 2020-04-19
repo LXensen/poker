@@ -1,6 +1,6 @@
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { Player } from './../models/player';
-import { Component,  OnInit,  ComponentFactoryResolver,  Injector,  Input} from '@angular/core';
+import { Component,  OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-table-component',
@@ -8,10 +8,10 @@ import { Component,  OnInit,  ComponentFactoryResolver,  Injector,  Input} from 
   styleUrls: ['./table-component.component.css']
 })
 export class TableComponentComponent implements OnInit {
-  @Input()
-  set players(value: Array<Player>) {
-    this.allPlayers = value;
-  }
+  // @Input()
+  // set players(value: Array<Player>) {
+  //   this.allPlayers = value;
+  // }
 
   isGameReady = false;
 
@@ -23,11 +23,16 @@ export class TableComponentComponent implements OnInit {
     this.broker.IsGameReady().subscribe((value) => {
       this.isGameReady = value.Ready;
     });
-    this.broker.ShowFireBasePlayersCollection().subscribe((val) => {
-      return val.map(res => {
-        // this.allPlayers.push(new Player(res.Stack, res.Name));
-          // tslint:disable-next-line:no-debugger
-        debugger;
+
+    this.broker.GetPlayers().subscribe((val) => {
+      val.map(res => {
+        // const data = res.payload.doc.data();
+        this.allPlayers.push(res);
+        // this.allPlayers.push(data);
+        // res.payload.doc.data()
+        // {stack: "3", name: "Jim", gameRef: "Game3"}
+        // res.payload.doc.id
+        // "_xgbim2dk1"
       });
     });
     }

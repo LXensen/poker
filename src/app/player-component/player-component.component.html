@@ -1,52 +1,26 @@
-    <!-- <div class="card-body">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{player.name}}</h5>
-            <span class="badge badge-primary badge-pill">{{player.GetStack()}}</span>
-          </div>
-          <p class="card-text"></p>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
-            <div class="input-group-append">
-            <button class="btn btn-primary" type="button" id="button-addon2" (click)="Bet(player)">Bet</button>
-            </div>
-        </div>
-        <br />
-        <button type="button" class="btn btn-primary btn-lg" (click)="FoldHand(player)">Fold Hand</button> &nbsp; 
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <input type="checkbox" aria-label="Checkbox for following text input" >
-                </div>
-                </div>
-                <input type="text" class="form-control" aria-label="Text input with checkbox" value="Remove Player">
-            </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <input type="checkbox" aria-label="Checkbox for following text input">
-                </div>
-                </div>
-                <input type="text" class="form-control" aria-label="Text input with checkbox" value="Wins Hand">
-            </div>    
-    </div> -->
-
     <div class="w-75 card">
-        <div class="card-header bg-transparent">{{player.name}}  <span class="badge badge-info">$ {{player.GetStack()}}</span></div>
+        <div class="card-header bg-transparent">{{currentPlayer?.name}}  &nbsp;&nbsp;<span class="badge badge-secondary">$ {{currentPlayer?.stack}}</span></div>
             <div class="card-body">
-                <img class="card-img-top w-50" src="assets/images/2C.png" alt="Card1">
-                <img class="card-img-top w-50" src="assets/images/5H.png" alt="Card1"> 
+                <img class="card-img-top w-50" [src]="card1SRC" alt="Card1">
+                <img class="card-img-top w-50" [src]="card2SRC" alt="Card1"> 
                 <br /><br />
                 <div class="input-group input-group-lg mb-3">
-                    <input type="text" class="form-control" placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
+                    <input type="text" class="form-control" #betInput placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
                     <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="button-addon2" (click)="Bet(player)">Bet</button>
+                    <button class="btn btn-primary" type="button" id="button-addon2" (click)="Bet(betInput.value)" [disabled]="isDisabled">Bet</button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary btn-sm" (click)="FoldHand(player)">Fold</button>&nbsp;
-                <button type="button" class="btn btn-secondary btn-sm">Check</button>&nbsp;
-                <button type="button" class="btn btn-secondary btn-sm">View</button> 
+                <div class="btn-group btn-group-sm" role="group" aria-label="First group">
+                    <button type="button" class="btn btn-secondary" (click)="FoldHand()" [disabled]="isDisabled">Fold</button>
+                    <button type="button" class="btn btn-secondary" [disabled]="isDisabled">Check</button>
+                    <button type="button" class="btn btn-secondary" (click)="TurnOverCards()" [disabled]="isDisabled">View</button>&nbsp;
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="isWinner">
+                        <label class="form-check-label" for="exampleCheck1">Win</label>
+                      </div>
+                  </div>
               </div>
-        <div class="card-footer">
+        <!-- <div class="card-footer">
           <small class="text-muted">Bet amount, blind type</small>
-        </div>
+        </div> -->
     </div>   
