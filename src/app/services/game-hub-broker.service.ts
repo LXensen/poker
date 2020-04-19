@@ -178,6 +178,7 @@ export class GameHubBrokerService {
   }
   UpdatePlayerStack(amount: number, player: string) {
     const playerref = this.firestore.collection('Game3').doc(player);
+    debugger;
     playerref.update({stack: amount});
   }
 

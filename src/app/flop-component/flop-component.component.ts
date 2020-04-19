@@ -17,7 +17,6 @@ export class FlopComponentComponent implements OnInit {
 
   constructor(private broker: GameHubBrokerService) {
     this.broker.GetFlop().subscribe((val) => {
-      debugger;
       this.card1SRC = this.cardPath + val.cardOne + '.png';
       this.card2SRC = this.cardPath + val.cardTwo + '.png';
       this.card3SRC = this.cardPath + val.cardThree + '.png';

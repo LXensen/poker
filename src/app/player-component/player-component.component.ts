@@ -74,8 +74,9 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
 
   Bet(amount: number) {
     if (amount < this.currentPlayer.stack) {
-      this.broker.UpdatePlayerStack(this.currentPlayer.stack, this.currentPlayer.docRef);
-      this.betInput.nativeElement.value = '';
+      if (this.currentPlayer.stack - amount >= 0) {
+        this.broker.UpdatePlayerStack(this.currentPlayer.stack - amount, this.currentPlayer.docRef);
+        this.betInput.nativeElement.value = '';      }
     }
   }
 

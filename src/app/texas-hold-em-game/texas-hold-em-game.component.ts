@@ -80,8 +80,8 @@ export class TexasHoldEmGameComponent implements OnInit {
 
   }
 
-  NewGame(smblind: number, bgblind: number, buyin: number) {
-    this.broker.NewTexasHoldEmGame(new TexasHoldEm(smblind, bgblind));
+  NewGame(buyin: number) {
+    this.broker.NewTexasHoldEmGame(new TexasHoldEm(1, 1));
     this.broker.CurrentHoldEmGame().Deck.Shuffle();
   }
 
