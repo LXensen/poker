@@ -53,6 +53,7 @@ export class TexasHoldEmGameComponent implements OnInit {
       stack: buyin,
       canBet: true,
       folded: false,
+      showCards: false,
       cardOne: '',
       cardTwo: '',
       docRef: '',
@@ -81,6 +82,10 @@ export class TexasHoldEmGameComponent implements OnInit {
 
   DealTurn() {
     this.broker.DealTurn();
+  }
+
+  ShowCards() {
+    this.broker.ShowCards();
   }
 
   DealRiver() {

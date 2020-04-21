@@ -1,6 +1,7 @@
 export class Player {
     canBet: boolean;
     folded: boolean;
+    showCards: boolean;
     cardOne: string;
     cardTwo: string;
     stack: number;

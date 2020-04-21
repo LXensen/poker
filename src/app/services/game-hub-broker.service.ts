@@ -84,7 +84,26 @@ export class GameHubBrokerService {
     return this.holdem;
   }
 
-  FoldPlayer(hand: string, player: string) {
+  ShowCards() {
+    // Show all non-folded players
+    this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
+    .where('folded', '==', false)
+    .where('canBet', '==', true))
+    .get()
+    .subscribe((val) => {         
+      const batch = this.firestore.firestore.batch();
+      val.forEach((doc) => {
+        const batchRef = this.firestore.firestore.collection(this.GAME).doc(doc.data().docRef);
+        batch.update(batchRef, {showCards: true});
+      });
+      batch.commit().then(() => {
+        // reset the hand
+        this.PushMessage('Showing cards');
+      });
+    });
+  }
+
+  FoldPlayer(player: string) {
     // remove this player from the list of PlayingPlayers
     const playerref = this.firestore.collection(this.GAME).doc(player);
     playerref.update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
@@ -92,12 +111,21 @@ export class GameHubBrokerService {
 
   NewHand() {
      this.handRef.get()
-       .subscribe((doc) => {
-          const x = doc.get('winner')
-          if (x.length === 0) {
+       .subscribe((docHandRef) => {
+          const winningPlayer = docHandRef.get('winner')
+          if (winningPlayer.length === 0) {
             this.PushMessage('You have to declare at least one winner')
           } else {
             // update the winners stack with the pot, then do this
+            const pot = docHandRef.get('potsize');
+            debugger;
+
+            const increaseStacktBy = firebase.firestore.FieldValue.increment(Number(pot));
+            const playerref = this.firestore.collection(this.GAME).doc(winningPlayer[0]);
+            playerref.update({stack: increaseStacktBy});
+        
+            // this.PushMessage(msg);
+
             this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
             .where('canBet', '==', true))
             .get()
@@ -105,7 +133,7 @@ export class GameHubBrokerService {
               const batch = this.firestore.firestore.batch();
               val.forEach((doc) => {
                 const batchRef = this.firestore.firestore.collection(this.GAME).doc(doc.data().docRef);
-                batch.update(batchRef, {folded: false, cardOne: '', cardTwo: ''});
+                batch.update(batchRef, {folded: false, cardOne: '', cardTwo: '', showCards: false});
               });
               batch.commit().then(() => {
                 // reset the hand
@@ -152,13 +180,6 @@ export class GameHubBrokerService {
           });
         });
   }
-
-  // private GetEligiblePlayers() {
-  //  return this.firestore.collection (this.GAME, ref => ref.where('gameRef', '==', this.GAME)
-  //  .where('folded', '==', false)
-  //  .where('canBet', '==', true))
-  //  .get()
-  // }
 
   DealTurn() {
     this.CurrentHoldEmGame().Deck.cards.pop();

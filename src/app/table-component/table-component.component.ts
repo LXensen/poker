@@ -25,10 +25,9 @@ export class TableComponentComponent implements OnInit {
     });
 
     this.broker.GetPlayers().subscribe((val) => {
-      debugger;
       // this.allPlayers = Object.assign({}, val);
       val.map(res => {
-        debugger;
+        // debugger;
         // const data = res.payload.doc.data();
         let exists = false;
         if ( this.allPlayers.length > 0 ){

@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 export class PlayerComponentComponent implements OnInit, OnChanges {
   @ViewChild('betInput') betInput: ElementRef;
 
+  private hasAlreadyTurnedOver = false;
   private cardPath = 'assets/images/';
   public flippedCardSRC = 'blue_back.png';
   public foldedCardSRC = 'gray_back.png';
@@ -21,6 +22,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   public isDisabled = false;
   public isChecked = false;
 
+
   currentPlayer: Player;
 
   @Input()
@@ -28,9 +30,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
     this.card2SRC = this.cardPath + this.flippedCardSRC;
     this.card1SRC = this.cardPath + this.flippedCardSRC;
 
-
     if (plyr) {
-    debugger;
     this.broker.LoadPlayer(plyr.docRef).subscribe((val) => {
       this.isDisabled = false;
 
@@ -47,6 +47,11 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
          this.card1SRC = this.cardPath + this.foldedCardSRC;
          this.card2SRC = this.cardPath + this.foldedCardSRC;
          this.isDisabled = true;
+       }
+
+       if (this.currentPlayer.showCards) {
+         this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
+         this.card2SRC = this.cardPath + this.currentPlayer.cardTwo+ '.png';
        }
     });
   }
@@ -70,7 +75,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   }
 
   FoldHand() {
-    this.broker.FoldPlayer('', this.currentPlayer.docRef);
+    this.broker.FoldPlayer(this.currentPlayer.docRef);
     this.isDisabled = true;
   }
 
@@ -79,13 +84,16 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   }
 
   TurnOverCards() {
-    if ( this.currentPlayer.cardOne === '' ) {
-      this.broker.PushMessage('No card to see, ' + this.currentPlayer.name + '. No one has dealt yet!')
-    } else {
-      this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
-      this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
+    debugger;
+    if ( !this.hasAlreadyTurnedOver ) {
+      if ( this.currentPlayer.cardOne === '' ) {
+        this.broker.PushMessage('No card to see, ' + this.currentPlayer.name + '. No one has dealt yet!')
+      } else {
+        this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
+        this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
+      }
+      this.hasAlreadyTurnedOver = true;
     }
-
   }
 
   Bet(amount: number) {
