@@ -17,7 +17,7 @@ import { FlopComponentComponent } from './flop-component/flop-component.componen
     TexasHoldEmGameComponent,
     PlayerComponentComponent,
     TableComponentComponent,
-    FlopComponentComponent
+    FlopComponentComponent,
   ],
   imports: [
     BrowserModule,

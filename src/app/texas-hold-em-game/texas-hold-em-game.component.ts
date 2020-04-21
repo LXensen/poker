@@ -1,9 +1,8 @@
-import { Observable, iif } from 'rxjs';
+import { Observable } from 'rxjs';
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { TexasHoldEm } from './../models/texas-hold-em';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Player, IPlayer } from '../models/player';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { Player } from '../models/player';
 
 @Component({
   selector: 'app-texas-hold-em-game',
@@ -13,9 +12,12 @@ import { AngularFirestore } from '@angular/fire/firestore';
 export class TexasHoldEmGameComponent implements OnInit {
   @ViewChild('playerName') betInput: ElementRef;
 
+  isVisible = "invisible";
+  message = '';
+  potsize = 0;
   isGameReady = false;
   plyr: Observable<Player>;
-  games: Observable<any[]>;
+  // games: Observable<any[]>;
 
   constructor(private broker: GameHubBrokerService) {
     // this.broker.ShowFireBaseItem().subscribe((val) => {
@@ -33,6 +35,16 @@ export class TexasHoldEmGameComponent implements OnInit {
     this.broker.IsGameReady().subscribe((value) => {
       this.isGameReady = value.Ready;
     });
+
+    this.broker.Hand().subscribe((value) => {
+      if (value.message === '') {
+        this.isVisible = 'invisible'
+      } else {
+        this.isVisible = 'visible'        
+      }
+      this.message = value.message;
+      this.potsize = value.potsize
+    });
   }
 
   AddPlayer(pname: string, buyin: number) {
@@ -46,14 +58,13 @@ export class TexasHoldEmGameComponent implements OnInit {
       docRef: '',
       gameRef: ''
     };
-    this.broker.CurrentHoldEmGame().AddPlayer(plyr);
+    // this.broker.CurrentHoldEmGame().AddPlayer(plyr);
     this.broker.AddPlayer(plyr);
     this.betInput.nativeElement.value = '';
   }
 
   Players(): Array<Player> {
     return (this.broker.CurrentHoldEmGame() ? this.broker.CurrentHoldEmGame().Players : new Array<Player>());
-    // return (this.broker.CurrentHoldEmGame() ? this.broker.ShowFireBasePlayers() : new Array<Player>());
   }
 
   Deal() {
@@ -61,7 +72,7 @@ export class TexasHoldEmGameComponent implements OnInit {
   }
 
   NewHand() {
-    this.broker.NewHand();
+    this.broker.NewHand();  
   }
 
   DealFlop() {
@@ -76,17 +87,12 @@ export class TexasHoldEmGameComponent implements OnInit {
     this.broker.DealRiver();
   }
 
-  GetPotSize() {
-
-  }
-
   NewGame(buyin: number) {
     this.broker.NewTexasHoldEmGame(new TexasHoldEm(1, 1));
     this.broker.CurrentHoldEmGame().Deck.Shuffle();
   }
 
   StartGame() {
-    // this.childComp.players = this.parentplayers;
     this.broker.StartGame(this.broker.CurrentHoldEmGame().Players);
   }
 }

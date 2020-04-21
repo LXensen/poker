@@ -25,9 +25,23 @@ export class TableComponentComponent implements OnInit {
     });
 
     this.broker.GetPlayers().subscribe((val) => {
+      debugger;
+      // this.allPlayers = Object.assign({}, val);
       val.map(res => {
+        debugger;
         // const data = res.payload.doc.data();
-        this.allPlayers.push(res);
+        let exists = false;
+        if ( this.allPlayers.length > 0 ){
+          for ( var i = 0; i< this.allPlayers.length; i++){
+            if (this.allPlayers[i].docRef === res.docRef){
+              exists = true;
+            }
+          }
+        }
+        if (!exists){
+          this.allPlayers.push(res);
+        }
+        
         // this.allPlayers.push(data);
         // res.payload.doc.data()
         // {stack: "3", name: "Jim", gameRef: "Game3"}

@@ -1,6 +1,8 @@
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { Player } from './../models/player';
-import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
+import { Subject } from 'rxjs';
+
 
 @Component({
   selector: 'app-player-component',
@@ -17,6 +19,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   public card1SRC = this.cardPath + this.flippedCardSRC;
   public card2SRC = this.cardPath + this.flippedCardSRC;
   public isDisabled = false;
+  public isChecked = false;
 
   currentPlayer: Player;
 
@@ -27,11 +30,11 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
 
 
     if (plyr) {
+    debugger;
     this.broker.LoadPlayer(plyr.docRef).subscribe((val) => {
-      // debugger;
       this.isDisabled = false;
 
-      this.currentPlayer = val; // new Player(val.stack, val.name, plyr.DocumentRef());
+      this.currentPlayer = val;
       if ( this.currentPlayer.cardOne === '') {
          this.card1SRC = this.cardPath + this.flippedCardSRC;
        }
@@ -58,30 +61,39 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
   }
 
+  changed(event: any) {
+    if (event.target.checked) {
+      this.broker.AddWinner(this.currentPlayer.docRef);
+    } else {
+      this.broker.RemovePlayer(this.currentPlayer.docRef);
+    }
+  }
+
   FoldHand() {
     this.broker.FoldPlayer('', this.currentPlayer.docRef);
     this.isDisabled = true;
   }
 
-  WinsHand(player: Player) {
-
+  Check() {
+    this.broker.PushMessage(this.currentPlayer.name + ' checks');
   }
 
   TurnOverCards() {
-    this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
-    this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
+    if ( this.currentPlayer.cardOne === '' ) {
+      this.broker.PushMessage('No card to see, ' + this.currentPlayer.name + '. No one has dealt yet!')
+    } else {
+      this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
+      this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
+    }
+
   }
 
   Bet(amount: number) {
-    if (amount < this.currentPlayer.stack) {
-      if (this.currentPlayer.stack - amount >= 0) {
-        this.broker.UpdatePlayerStack(this.currentPlayer.stack - amount, this.currentPlayer.docRef);
-        this.betInput.nativeElement.value = '';      }
+    if (this.currentPlayer.stack - amount >= 0) {
+      this.broker.UpdatePlayerStack(this.currentPlayer.stack - amount, this.currentPlayer.docRef, this.currentPlayer.name, amount);
+      this.betInput.nativeElement.value = '';      
+    } else {
+      this.broker.PushMessage(this.currentPlayer.name + ' tried to bet more than he has...Try again');
     }
-  }
-
-
-  DisableButtons() {
-
   }
 }

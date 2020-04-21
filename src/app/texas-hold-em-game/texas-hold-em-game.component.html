@@ -12,14 +12,17 @@
         <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="NewGame(buyin.value)">New Game</button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input class="form-control mr-sm-2" #playerName type="text" placeholder="Name" aria-label="Name">
-        <button type="button" class="btn btn-primary" (click)="AddPlayer(playerName.value, buyin.value)">Add Player</button>     
+        <button type="button" class="btn btn-secondary my-2 my-sm-0" (click)="AddPlayer(playerName.value, buyin.value)">Add Player</button>     
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input class="form-control mr-sm-2" #blindDuration type="text" placeholder="Duration" aria-label="Duration">
         <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="StartGame()">Start Game</button>   
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{message}}</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{potsize}}</button>
       </form>
-
     </div>
-    </nav>
+</nav>
     
     <main role="main" class="container">
     
@@ -28,14 +31,14 @@
         <div class="container" *ngIf="isGameReady">
           <div class="row">
               <div class="col">
-                  <button type="button" class="btn btn-info" (click)="Deal()">Deal</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button type="button" class="btn btn-info" (click)="DealFlop()">Flop</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button type="button" class="btn btn-info" (click)="DealTurn()">Turn</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button type="button" class="btn btn-info" (click)="DealRiver()">River</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button type="button" class="btn btn-info">Winner</button>&nbsp;&nbsp;
-                  <button type="button" class="btn btn-info"  (click)="NewHand()">New Hand</button>
-              </div>
-            </div>     
+                <button type="button" class="btn btn-primary" (click)="Deal()">Deal</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary" (click)="DealFlop()">Flop</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary" (click)="DealTurn()">Turn</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary" (click)="DealRiver()">River</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-primary"  (click)="NewHand()">New Hand</button> 
+            </div>
+          </div>   
+
         </div>     
         <app-table-component #child ></app-table-component>
     </div>
