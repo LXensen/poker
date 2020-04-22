@@ -117,8 +117,18 @@
               "devServerTarget": "stonebridge-poker:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@jefiozie/ngx-aws-deploy:deploy",
+          "options": {
+            "region": "us-east-1",
+            "bucket": "stonebridgepoker",
+            "secretAccessKey": "2JHdndc4qwx1U0MJJVcIQZlgcwnU868GYwJshL+7",
+            "accessKeyId": "AKIAJB3HY2Q3PSYGTEGQ"
+          }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "stonebridge-poker"
 }

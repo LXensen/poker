@@ -1,28 +1,30 @@
-    <div class="w-75 card">
-        <div class="card-header bg-transparent"><strong>{{currentPlayer?.name}}</strong>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="badge badge-secondary">stack $ {{currentPlayer?.stack}}</span>  &nbsp;&nbsp;  
+    <div class="w-100 card">
+        <div class="card-header bg-transparent  p-2"><strong>{{currentPlayer?.name}}</strong>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span class="badge badge-warning">stack {{currentPlayer?.stack}}</span>
         </div>
-            <div class="card-body">
-                <img class="card-img-top w-50" [src]="card1SRC" alt="Card1">
-                <img class="card-img-top w-50" [src]="card2SRC" alt="Card1"> 
-                <br /><br />
+            <div class="card-body  p-2">
+                <img class="card-img-top w-25" [src]="card1SRC" alt="Card1">
+                <img class="card-img-top w-25" [src]="card2SRC" alt="Card1"> 
+                <br />
                 <div class="input-group input-group-lg mb-3">
                     <input type="text" class="form-control" #betInput placeholder="$$" aria-label="Ammount" aria-describedby="button-addon2">
                     <div class="input-group-append">
-                    <button class="btn btn-danger" type="button" id="button-addon2" (click)="Bet(betInput.value)" [disabled]="isDisabled">Bet</button>
+                    <button class="btn btn-outline-danger" type="button" id="button-addon2" (click)="Bet(betInput.value)" [disabled]="isDisabled">Bet</button>
                     </div>
                 </div>
                 <div class="btn-group btn-group-sm" role="group" aria-label="First group">               
-                    <button type="button" class="btn btn-outline-danger" (click)="FoldHand()" [disabled]="isDisabled">Fold</button>
-                    <button type="button" class="btn btn-outline-danger" (click)="Check()" [disabled]="isDisabled">Check</button>
-                    <button type="button" class="btn btn-danger" (click)="TurnOverCards()" [disabled]="isDisabled">View</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-outline-secondary" (click)="FoldHand()" [disabled]="isDisabled">Fold</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="Check()" [disabled]="isDisabled">Check</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="TurnOverCards()" [disabled]="isDisabled">View</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="TurnOverCards()" [disabled]="isDisabled">SM</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="TurnOverCards()" [disabled]="isDisabled">BG</button>&nbsp;&nbsp;
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="isWinner" (change)="changed($event)"/>
                         <label class="form-check-label" for="exampleCheck1">Win</label>
                       </div>
                   </div>
               </div>
-        <!-- <div class="card-footer">
-          <small class="text-muted">Bet amount, blind type</small>
+        <!-- <div class="card-footer p-1">
+          <small class="text-muted">&nbsp;</small>
         </div> -->
     </div>   

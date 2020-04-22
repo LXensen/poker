@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Observable, timer, interval } from 'rxjs';
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { TexasHoldEm } from './../models/texas-hold-em';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
@@ -12,6 +13,7 @@ import { Player } from '../models/player';
 export class TexasHoldEmGameComponent implements OnInit {
   @ViewChild('playerName') betInput: ElementRef;
 
+  timeLeft = "0:00";
   isVisible = "invisible";
   message = '';
   potsize = 0;
@@ -34,19 +36,44 @@ export class TexasHoldEmGameComponent implements OnInit {
   ngOnInit() {
     this.broker.IsGameReady().subscribe((value) => {
       this.isGameReady = value.Ready;
+      if (value.Ready) {
+        // this.startTimer(1);
+        //debugger;
+      }
     });
 
     this.broker.Hand().subscribe((value) => {
+      this.isVisible = 'visible';
       if (value.message === '') {
-        this.isVisible = 'invisible'
-      } else {
-        this.isVisible = 'visible'        
-      }
-      this.message = value.message;
-      this.potsize = value.potsize
+        //this.isVisible = 'invisible'
+       } else {
+        this.message = value.message;
+        this.potsize = value.potsize    
+       }
+
     });
   }
 
+  private startTimer(blindDurationInMinutes: number) {
+    let total = blindDurationInMinutes * 60000; // this will be duration
+    const source = timer(1000, 1000).subscribe(val => {
+      if (total === 0){
+        this.timeLeft = "0:00";
+        source.unsubscribe();
+      } else {
+        total = total - 1000;
+        this.timeLeft = this.millisToMinutesAndSeconds(total);
+      }
+      //  console.log(total + ' ' + this.millisToMinutesAndSeconds(total));
+    });
+  }
+
+  private millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000);
+    return (Number(seconds) == 60 ? (minutes+1) + ":00" : minutes + ":" + (Number(seconds) < 10 ? "0" : "") + seconds);
+  }
+  
   AddPlayer(pname: string, buyin: number) {
     const plyr: Player = {
       name: pname,
@@ -60,8 +87,16 @@ export class TexasHoldEmGameComponent implements OnInit {
       gameRef: ''
     };
     // this.broker.CurrentHoldEmGame().AddPlayer(plyr);
-    this.broker.AddPlayer(plyr);
-    this.betInput.nativeElement.value = '';
+    if ( buyin ) {
+      debugger;
+      this.broker.AddPlayer(plyr);
+      this.betInput.nativeElement.value = '';
+      this.broker.PushMessage(pname + ' added');
+    } else {
+      this.broker.PushMessage('Buyin amount is required');
+      this.betInput.nativeElement.value = '';
+    }
+
   }
 
   Players(): Array<Player> {
@@ -97,7 +132,8 @@ export class TexasHoldEmGameComponent implements OnInit {
     this.broker.CurrentHoldEmGame().Deck.Shuffle();
   }
 
-  StartGame() {
+  StartGame(duration: number) {
+    this.startTimer(duration);
     this.broker.StartGame(this.broker.CurrentHoldEmGame().Players);
   }
 }

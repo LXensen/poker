@@ -12,7 +12,6 @@ import { Subject } from 'rxjs';
 export class PlayerComponentComponent implements OnInit, OnChanges {
   @ViewChild('betInput') betInput: ElementRef;
 
-  private hasAlreadyTurnedOver = false;
   private cardPath = 'assets/images/';
   public flippedCardSRC = 'blue_back.png';
   public foldedCardSRC = 'gray_back.png';
@@ -84,16 +83,12 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   }
 
   TurnOverCards() {
-    debugger;
-    if ( !this.hasAlreadyTurnedOver ) {
       if ( this.currentPlayer.cardOne === '' ) {
         this.broker.PushMessage('No card to see, ' + this.currentPlayer.name + '. No one has dealt yet!')
       } else {
         this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
         this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
       }
-      this.hasAlreadyTurnedOver = true;
-    }
   }
 
   Bet(amount: number) {
