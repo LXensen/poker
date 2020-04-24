@@ -20,32 +20,25 @@ export class TableComponentComponent implements OnInit {
   constructor(private broker: GameHubBrokerService) { }
 
   ngOnInit(): void {
-    this.broker.IsGameReady().subscribe((value) => {
+    this.broker.GameState().subscribe((value) => {
       this.isGameReady = value.Ready;
     });
 
     this.broker.GetPlayers().subscribe((val) => {
-      // this.allPlayers = Object.assign({}, val);
       val.map(res => {
-        // debugger;
         // const data = res.payload.doc.data();
         let exists = false;
-        if ( this.allPlayers.length > 0 ){
-          for ( var i = 0; i< this.allPlayers.length; i++){
-            if (this.allPlayers[i].docRef === res.docRef){
+        if ( this.allPlayers.length > 0 ) {
+          // tslint:disable-next-line:prefer-for-of
+          for ( let i = 0; i < this.allPlayers.length; i++) {
+            if (this.allPlayers[i].docRef === res.docRef) {
               exists = true;
             }
           }
         }
-        if (!exists){
+        if (!exists) {
           this.allPlayers.push(res);
         }
-        
-        // this.allPlayers.push(data);
-        // res.payload.doc.data()
-        // {stack: "3", name: "Jim", gameRef: "Game3"}
-        // res.payload.doc.id
-        // "_xgbim2dk1"
       });
     });
     }

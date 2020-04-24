@@ -39,20 +39,19 @@
     </button>
     <div >
       <form class="form-inline mx-sm-3 mb-2">
-        <label class="sr-only" for="inlineFormInputName2">Small</label>
-        <input type="text" class="form-control mr-sm-2" id="smallBlind" placeholder="Small">
-      
-        <label class="sr-only" for="inlineFormInputGroupUsername2">Big</label>
-        <input type="text" class="form-control mr-sm-2" id="bigBlind" placeholder="Big">
-
-        <input class="form-control mr-sm-2" #blindDuration type="text" placeholder="Duration(mm)" aria-label="Duration" value="{{timeLeft}}">
-        <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="StartGame(blindDuration.value)">Start</button>   
-
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{message}}</button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{potsize}}</button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="sr-only" for="inlineFormInputName2">Small</label>
+        <input type="text" #smallBlind class="form-control mr-sm-2" id="smallBlind" placeholder="Small" value="{{smallAmount}}">
+      
+        <label class="sr-only" for="inlineFormInputGroupUsername2">Big</label>
+        <input type="text" #bigBlind class="form-control mr-sm-2" id="bigBlind" placeholder="Big" value="{{bigAmount}}">
+
+        <input [ngClass]="blindBackground" #blindDuration type="text" placeholder="Duration(mm)" aria-label="Duration" value="{{timeLeft}}">
+        <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="StartGame(smallBlind.value,  bigBlind.value, blindDuration.value)">Start</button>  
+        &nbsp;&nbsp;&nbsp;
         <a class="navbar-brand" href="#">Stonebridge Poker</a>
       </form>
     </div>    
@@ -62,17 +61,17 @@
     <main role="main" class="container">
     
     <div class="starter-template">
-        <br /><br /><br />
+        <br /><br /><br /><br />
 
         <div class="container" *ngIf="isGameReady">
           <div class="row" >
               <div class="col p-0">
-                <button type="button" class="btn btn-secondary" (click)="Deal()">Deal</button>&nbsp;&nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary" (click)="DealFlop()">Flop</button>&nbsp;&nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary" (click)="DealTurn()">Turn</button>&nbsp;&nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary" (click)="DealRiver()">River</button>&nbsp;&nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary" (click)="ShowCards()">Show Cards</button>&nbsp;&nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary" (click)="NewHand()">New Hand</button> 
+                <button type="button" class="btn btn-secondary" (click)="Deal()" [disabled]="dealDisabled">Deal - 1</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" (click)="DealFlop()" [disabled]="flopDisabled">Flop - 2</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" (click)="DealTurn()" [disabled]="turnDisabled">Turn - 3</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" (click)="DealRiver()" [disabled]="riverDisabled">River - 4</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" (click)="ShowCards()">Show Cards - 5</button>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary" (click)="NewHand()">New Hand - 6</button> 
               </div>  
             </div>
 

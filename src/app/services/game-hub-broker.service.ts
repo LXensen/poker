@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { TexasHoldEm } from './../models/texas-hold-em';
 import { Player } from './../models/player';
@@ -16,9 +17,9 @@ export class GameHubBrokerService {
   private BLUECARD = 'blue_back';
   private GRAYCARD = 'gray_back';
 
-  // game: Observable<any[]>;
-  // plyrsColRef: AngularFirestoreCollection<any>;
-  // playerref: AngularFirestoreDocument;
+  private smBlind = 0;
+  private bgBlind = 0;
+
   plyrsCol: Observable<any[]>;
   gameState: Observable<any>;
 
@@ -28,7 +29,7 @@ export class GameHubBrokerService {
     // this.game = firestore.collection(this.GAME).valueChanges();
 
     // this.plyrsColRef = firestore.collection<Player>(this.GAME, ref => ref.where('gameRef', '==', this.GAME));
-    this.plyrsCol = this.firestore.collection<Player>(this.GAME, ref => ref.where('gameRef', '==', this.GAME)).valueChanges(); 
+    this.plyrsCol = this.firestore.collection<Player>(this.GAME, ref => ref.where('gameRef', '==', this.GAME)).valueChanges();
 
     this.gameState = firestore.collection(this.GAME).doc('GameState').valueChanges();
 
@@ -43,6 +44,11 @@ export class GameHubBrokerService {
     this.holdem = holdemGame;
   }
 
+  SetDealer(playerRef: string) {
+    const playerref = this.firestore.collection(this.GAME).doc(playerRef);
+    playerref.update({dealer: true});
+  }
+
   AddPlayer(player: Player) {
       // Get the document ref of a new player and set it
       player.gameRef = this.GAME;
@@ -51,10 +57,6 @@ export class GameHubBrokerService {
         this.firestore.collection(this.GAME).doc(docRef.id).update({docRef: docRef.id});
     });
   }
-
-  // ShowFireBaseItem(): Observable<any[]> {
-  //   return this.game;
-  // }
 
   GetFlop(): Observable<any> {
     return this.handRef.valueChanges();
@@ -68,7 +70,7 @@ export class GameHubBrokerService {
     return this.handRef.valueChanges();
   }
 
-  IsGameReady(): Observable<any> {
+  GameState(): Observable<any> {
     return this.gameState;
   }
 
@@ -78,7 +80,7 @@ export class GameHubBrokerService {
 
   CurrentHoldEmGame(): TexasHoldEm {
     if (!this.holdem) {
-      this.holdem = new TexasHoldEm(1,1);
+      this.holdem = new TexasHoldEm(1, 1);
       this.holdem.Deck.Shuffle();
     }
     return this.holdem;
@@ -90,7 +92,7 @@ export class GameHubBrokerService {
     .where('folded', '==', false)
     .where('canBet', '==', true))
     .get()
-    .subscribe((val) => {         
+    .subscribe((val) => {
       const batch = this.firestore.firestore.batch();
       val.forEach((doc) => {
         const batchRef = this.firestore.firestore.collection(this.GAME).doc(doc.data().docRef);
@@ -110,21 +112,25 @@ export class GameHubBrokerService {
   }
 
   NewHand() {
-     this.handRef.get()
+    let playerName = '';
+
+    this.handRef.get()
        .subscribe((docHandRef) => {
-          const winningPlayer = docHandRef.get('winner')
+          const winningPlayer = docHandRef.get('winner');
           if (winningPlayer.length === 0) {
-            this.PushMessage('You have to declare at least one winner')
+            this.PushMessage('You have to declare at least one winner');
           } else {
             // update the winners stack with the pot, then do this
             const pot = docHandRef.get('potsize');
-            debugger;
 
             const increaseStacktBy = firebase.firestore.FieldValue.increment(Number(pot));
             const playerref = this.firestore.collection(this.GAME).doc(winningPlayer[0]);
             playerref.update({stack: increaseStacktBy});
-        
-            // this.PushMessage(msg);
+
+            this.firestore.collection(this.GAME).doc(winningPlayer[0]).get().subscribe(win => {
+              playerName = win.data().name;
+              this.PushMessage(playerName + ' wins the hand');
+            });
 
             this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
             .where('canBet', '==', true))
@@ -133,7 +139,14 @@ export class GameHubBrokerService {
               const batch = this.firestore.firestore.batch();
               val.forEach((doc) => {
                 const batchRef = this.firestore.firestore.collection(this.GAME).doc(doc.data().docRef);
-                batch.update(batchRef, {folded: false, cardOne: '', cardTwo: '', showCards: false});
+                // reset each Player
+                batch.update(batchRef, {folded: false,
+                  cardOne: '',
+                  cardTwo: '',
+                  showCards: false,
+                  smAntee: false,
+                  bgAntee: false,
+                  dealer: false});
               });
               batch.commit().then(() => {
                 // reset the hand
@@ -147,36 +160,53 @@ export class GameHubBrokerService {
                   potsize: 0});
               });
             });
-      
-            this.holdem.Deck.Shuffle();
-            // this.CurrentHoldEmGame().Deck.Shuffle();
+            this.CurrentHoldEmGame().Deck.Shuffle();
           }
-       }) 
+       });
   }
 
   DealHand() {
-    const newHand = false;
+    const refArray = new Array();
     //  only deal to players that haven't folded
     this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
         .where('folded', '==', false)
         .where('canBet', '==', true))
         .get()
-        .subscribe((val) => {
+        .subscribe((playerRef) => {
           const batch = this.firestore.firestore.batch();
-          val.forEach((doc) => {
-          const batchRef = this.firestore.firestore.collection(this.GAME).doc(doc.data().docRef);
-          for (let i = 0; i < 2; i++) {
-            const whichCard = i === 0 ? 'One' : 'Two';
-            const card = this.CurrentHoldEmGame().Deck.cards.pop();
-
-            // const dto = {}; dto['card' + whichCard] = newHand ? '' : card.url;
-            const dto = {}; dto['card' + whichCard] = card.url;
-            batch.update(batchRef, dto);
-          }
+          playerRef.forEach((player) => {
+          const batchRef = this.firestore.firestore.collection(this.GAME).doc(player.data().docRef);
+          // for (let i = 0; i < 2; i++) {
+            // const whichCard = i === 0 ? 'One' : 'Two';
+          const card = this.CurrentHoldEmGame().Deck.cards.pop();
+            // const dto = {}; dto['card' + whichCard] = card.url;
+            // batch.update(batchRef, dto);
+          batch.update(batchRef, {cardOne: card.url});
+          console.log(card.url + ' ' + player.data().name);
+          // }
         });
           batch.commit().then(() => {
-            const msg = 'Hand dealt';
-            this.PushMessage(msg);
+            // const msg = 'Hand dealt';
+            // this.PushMessage(msg);
+          });
+        });
+
+    // Now deal the second card, cardTwo. Doing this rathe than the for loop so that it approximates actual 'dealing', where
+    // you deal one card at a time to each player
+    this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
+        .where('folded', '==', false)
+        .where('canBet', '==', true))
+        .get()
+        .subscribe((playerRef) => {
+          const batch = this.firestore.firestore.batch();
+          playerRef.forEach((player) => {
+          const batchRef = this.firestore.firestore.collection(this.GAME).doc(player.data().docRef);
+          const card = this.CurrentHoldEmGame().Deck.cards.pop();
+          batch.update(batchRef, {cardTwo: card.url});
+        });
+          batch.commit().then(() => {
+          const msg = 'Dealing hand';
+          this.PushMessage(msg);
           });
         });
   }
@@ -194,7 +224,7 @@ export class GameHubBrokerService {
 
     this.handRef.update({cardFive: this.CurrentHoldEmGame().Deck.cards.pop().url});
 
-    this.PushMessage('Dealing river');    
+    this.PushMessage('Dealing river');
   }
 
   DealFlop() {
@@ -204,7 +234,7 @@ export class GameHubBrokerService {
       cardTwo: this.CurrentHoldEmGame().Deck.cards.pop().url,
       cardThree: this.CurrentHoldEmGame().Deck.cards.pop().url});
 
-      this.PushMessage('Dealing flop');
+    this.PushMessage('Dealing flop');
   }
 
   UpdatePlayerStack(amount: number, player: string, name: string, betAmount: number) {
@@ -214,7 +244,22 @@ export class GameHubBrokerService {
     const increasePotBy = firebase.firestore.FieldValue.increment(Number(betAmount));
     this.handRef.update({potsize: increasePotBy});
 
-    const msg = name + ' bets ' + betAmount
+    const msg = name + ' bets ' + betAmount;
+    this.PushMessage(msg);
+  }
+
+  Anteed(amount: number, player: string, name: string, betAmount: number, anteeType: string) {
+    const playerref = this.firestore.collection(this.GAME).doc(player);
+    if ( anteeType === 'small' ) {
+      playerref.update({stack: amount, smAntee: true});
+    } else {
+      playerref.update({stack: amount, bgAntee: true});
+    }
+
+    const increasePotBy = firebase.firestore.FieldValue.increment(Number(betAmount));
+    this.handRef.update({potsize: increasePotBy});
+
+    const msg = name + ' anteed ' + betAmount;
     this.PushMessage(msg);
   }
 
@@ -226,11 +271,11 @@ export class GameHubBrokerService {
 
   RemovePlayer(playerRef: string) {
     this.handRef.update({
-      winner: firebase.firestore.FieldValue.arrayRemove(playerRef) 
+      winner: firebase.firestore.FieldValue.arrayRemove(playerRef)
   });
   }
 
-  StartGame(players: Array<Player>) {
+    StartGame(smallBlind: number, bigBlind: number, blindDuration: number) {
     // players.forEach(player => {
     //   // Get the document ref of a new player and set it
     //   player.gameRef = this.GAME;
@@ -241,6 +286,6 @@ export class GameHubBrokerService {
     //     this.firestore.collection(this.GAME).doc(docRef.id).update({docRef: docRef.id});
     //   });
     // });
-    this.firestore.collection(this.GAME).doc('GameState').update({Ready: true});
+    this.firestore.collection(this.GAME).doc('GameState').update({Ready: true, small: smallBlind, big: bigBlind, duration: blindDuration});
   }
 }

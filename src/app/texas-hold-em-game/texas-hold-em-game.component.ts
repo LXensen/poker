@@ -1,4 +1,3 @@
-import { map } from 'rxjs/operators';
 import { Observable, timer, interval } from 'rxjs';
 import { GameHubBrokerService } from './../services/game-hub-broker.service';
 import { TexasHoldEm } from './../models/texas-hold-em';
@@ -13,13 +12,20 @@ import { Player } from '../models/player';
 export class TexasHoldEmGameComponent implements OnInit {
   @ViewChild('playerName') betInput: ElementRef;
 
-  timeLeft = "0:00";
-  isVisible = "invisible";
+  blindBackground = 'form-control mr-sm-2';
+  timeLeft = '0:00';
+  isVisible = 'invisible';
   message = '';
   potsize = 0;
   isGameReady = false;
   plyr: Observable<Player>;
-  // games: Observable<any[]>;
+  smallAmount = 0;
+  bigAmount = 0;
+
+  dealDisabled = false;
+  flopDisabled = false;
+  turnDisabled = false;
+  riverDisabled = false;
 
   constructor(private broker: GameHubBrokerService) {
     // this.broker.ShowFireBaseItem().subscribe((val) => {
@@ -34,53 +40,64 @@ export class TexasHoldEmGameComponent implements OnInit {
    }
 
   ngOnInit() {
-    this.broker.IsGameReady().subscribe((value) => {
+    this.broker.GameState().subscribe((value) => {
       this.isGameReady = value.Ready;
       if (value.Ready) {
-        // this.startTimer(1);
-        //debugger;
+        this.startTimer(value.duration);
+        this.bigAmount = value.big;
+        this.smallAmount = value.small;
       }
     });
 
     this.broker.Hand().subscribe((value) => {
       this.isVisible = 'visible';
       if (value.message === '') {
-        //this.isVisible = 'invisible'
+        this.isVisible = 'invisible';
+        if ( value.potsize === 0 ) {
+          this.dealDisabled = false;
+          this.flopDisabled = false;
+          this.turnDisabled = false;
+          this.riverDisabled = false;
+        }
        } else {
         this.message = value.message;
-        this.potsize = value.potsize    
+        this.potsize = value.potsize;
        }
 
     });
   }
 
   private startTimer(blindDurationInMinutes: number) {
-    let total = blindDurationInMinutes * 60000; // this will be duration
+    let total = Number(blindDurationInMinutes * 60000); // this will be duration
     const source = timer(1000, 1000).subscribe(val => {
-      if (total === 0){
-        this.timeLeft = "0:00";
+      if (total === 0) {
+        this.timeLeft = '0:00';
         source.unsubscribe();
+        this.blindBackground = 'form-control mr-sm-2 bg-danger';
       } else {
         total = total - 1000;
         this.timeLeft = this.millisToMinutesAndSeconds(total);
       }
-      //  console.log(total + ' ' + this.millisToMinutesAndSeconds(total));
     });
   }
 
   private millisToMinutesAndSeconds(millis) {
-    var minutes = Math.floor(millis / 60000);
-    var seconds = ((millis % 60000) / 1000);
-    return (Number(seconds) == 60 ? (minutes+1) + ":00" : minutes + ":" + (Number(seconds) < 10 ? "0" : "") + seconds);
+    const minutes = Math.floor(millis / 60000);
+    const seconds = ((millis % 60000) / 1000);
+    // tslint:disable-next-line:max-line-length
+    return (Number(seconds) === 60 ? Number((minutes + 1)) + ':00' : Number(minutes) + ':' + (Number(seconds) < 10 ? '0' : '') + Number(seconds));
   }
-  
+
   AddPlayer(pname: string, buyin: number) {
     const plyr: Player = {
       name: pname,
       stack: buyin,
       canBet: true,
       folded: false,
+      smAntee: false,
+      bgAntee: false,
       showCards: false,
+      dealer: false,
       cardOne: '',
       cardTwo: '',
       docRef: '',
@@ -88,7 +105,6 @@ export class TexasHoldEmGameComponent implements OnInit {
     };
     // this.broker.CurrentHoldEmGame().AddPlayer(plyr);
     if ( buyin ) {
-      debugger;
       this.broker.AddPlayer(plyr);
       this.betInput.nativeElement.value = '';
       this.broker.PushMessage(pname + ' added');
@@ -105,18 +121,21 @@ export class TexasHoldEmGameComponent implements OnInit {
 
   Deal() {
     this.broker.DealHand();
+    this.dealDisabled = true;
   }
 
   NewHand() {
-    this.broker.NewHand();  
+    this.broker.NewHand();
   }
 
   DealFlop() {
     this.broker.DealFlop();
+    this.flopDisabled = true;
   }
 
   DealTurn() {
     this.broker.DealTurn();
+    this.turnDisabled = true;
   }
 
   ShowCards() {
@@ -125,15 +144,21 @@ export class TexasHoldEmGameComponent implements OnInit {
 
   DealRiver() {
     this.broker.DealRiver();
+    this.riverDisabled = true;
   }
 
-  NewGame(buyin: number) {
-    this.broker.NewTexasHoldEmGame(new TexasHoldEm(1, 1));
-    this.broker.CurrentHoldEmGame().Deck.Shuffle();
-  }
+  // NewGame(buyin: number) {
+  //   this.broker.NewTexasHoldEmGame(new TexasHoldEm(1, 1));
+  //   this.broker.CurrentHoldEmGame().Deck.Shuffle();
+  // }
 
-  StartGame(duration: number) {
-    this.startTimer(duration);
-    this.broker.StartGame(this.broker.CurrentHoldEmGame().Players);
+  StartGame(smallBlind: number, bigBlind: number, duration: number) {
+    // this.broker.StartGame(this.broker.CurrentHoldEmGame().Players);
+    this.blindBackground = 'form-control mr-sm-2';
+    if ( Number(duration)) {
+      this.broker.StartGame(Number(smallBlind), Number(bigBlind), Number(duration));
+    } else {
+      this.broker.PushMessage('Blind duration is not a number');
+    }
   }
 }
