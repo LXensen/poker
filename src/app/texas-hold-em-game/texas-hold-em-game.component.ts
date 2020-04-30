@@ -92,7 +92,9 @@ export class TexasHoldEmGameComponent implements OnInit {
     const plyr: Player = {
       name: pname,
       stack: buyin,
+      totalBet: 0,
       canBet: true,
+      hasChecked: false,
       folded: false,
       smAntee: false,
       bgAntee: false,
@@ -112,11 +114,14 @@ export class TexasHoldEmGameComponent implements OnInit {
       this.broker.PushMessage('Buyin amount is required');
       this.betInput.nativeElement.value = '';
     }
-
   }
 
-  Players(): Array<Player> {
-    return (this.broker.CurrentHoldEmGame() ? this.broker.CurrentHoldEmGame().Players : new Array<Player>());
+  Deck(event: any) {
+    if (event.target.checked) {
+      this.broker.UseDeck(true);
+    } else {
+      this.broker.UseDeck(false);
+    }
   }
 
   Deal() {
@@ -146,11 +151,6 @@ export class TexasHoldEmGameComponent implements OnInit {
     this.broker.DealRiver();
     this.riverDisabled = true;
   }
-
-  // NewGame(buyin: number) {
-  //   this.broker.NewTexasHoldEmGame(new TexasHoldEm(1, 1));
-  //   this.broker.CurrentHoldEmGame().Deck.Shuffle();
-  // }
 
   StartGame(smallBlind: number, bigBlind: number, duration: number) {
     // this.broker.StartGame(this.broker.CurrentHoldEmGame().Players);

@@ -19,8 +19,10 @@
       </div>
       <div class="col p-2">
         <div class="bg-success p-2">
-        <app-flop-component></app-flop-component>
-      </div>
+          <app-flop-component></app-flop-component>
+        </div>
+      <div class="p-3 mb-2 bg-warning text-dark font-weight-bold" *ngIf="message" >{{message}}</div>
+      
       </div>
       <div class="col p-2">Seat #4
         <app-player-component [player]="allPlayers[3]"></app-player-component>    
