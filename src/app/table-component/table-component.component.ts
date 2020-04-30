@@ -8,13 +8,8 @@ import { Component,  OnInit } from '@angular/core';
   styleUrls: ['./table-component.component.css']
 })
 export class TableComponentComponent implements OnInit {
-  // @Input()
-  // set players(value: Array<Player>) {
-  //   this.allPlayers = value;
-  // }
-
   isGameReady = false;
-
+  message: string;
   allPlayers = new Array<Player>();
 
   constructor(private broker: GameHubBrokerService) { }
@@ -22,6 +17,10 @@ export class TableComponentComponent implements OnInit {
   ngOnInit(): void {
     this.broker.GameState().subscribe((value) => {
       this.isGameReady = value.Ready;
+    });
+
+    this.broker.Hand().subscribe((hand) => {
+      this.message = hand.message;
     });
 
     this.broker.GetPlayers().subscribe((val) => {

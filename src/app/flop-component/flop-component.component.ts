@@ -13,6 +13,7 @@ export class FlopComponentComponent implements OnInit {
   card4SRC: string;
   card5SRC: string;
 
+  pot = 0;
   private cardPath = 'assets/images/';
 
   constructor(private broker: GameHubBrokerService) {
@@ -22,6 +23,10 @@ export class FlopComponentComponent implements OnInit {
       this.card3SRC = this.cardPath + val.cardThree + '.png';
       this.card4SRC = this.cardPath + val.cardFour + '.png';
       this.card5SRC = this.cardPath + val.cardFive + '.png';
+    });
+
+    this.broker.Hand().subscribe(hand => {
+      this.pot = hand.potsize;
     });
   }
 

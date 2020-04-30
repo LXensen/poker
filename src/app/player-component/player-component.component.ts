@@ -14,9 +14,8 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   private smallAmount: number;
   private bigAmount: number;
   private cardPath = 'assets/images/';
-  private anteedClass = 'btn btn-success';
-  private dealerClass = 'btn btn-success';
-  private blindClass = 'btn btn-outline-secondary';
+  private isSelectedCSSClass = 'btn btn-success';
+  private secondaryUnChecked = 'btn btn-outline-secondary';
   public flippedCardSRC = 'blue_back.png';
   public foldedCardSRC = 'gray_back.png';
 
@@ -27,13 +26,16 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   public smallAnteClass: string;
   public bigAnteeClass: string;
   public deallingClass: string;
+  public checkedClass: string;
 
   currentPlayer: Player;
 
   @Input()
   set player(plyr: Player) {
-    this.smallAnteClass = this.blindClass;
-    this.bigAnteeClass = this.blindClass;
+    this.smallAnteClass = this.secondaryUnChecked;
+    this.bigAnteeClass = this.secondaryUnChecked;
+    this.checkedClass = this.secondaryUnChecked;
+
     this.deallingClass = 'btn btn-outline-success';
     this.card2SRC = this.cardPath + this.flippedCardSRC;
     this.card1SRC = this.cardPath + this.flippedCardSRC;
@@ -43,6 +45,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
       this.isDisabled = false;
 
       this.currentPlayer = val;
+
       if ( this.currentPlayer.cardOne === '') {
          this.card1SRC = this.cardPath + this.flippedCardSRC;
        }
@@ -51,22 +54,28 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
          this.card2SRC = this.cardPath + this.flippedCardSRC;
        }
 
-      if ( this.currentPlayer.folded ) {
+      if ( this.currentPlayer.folded || (this.currentPlayer.canBet === false) ) {
          this.card1SRC = this.cardPath + this.foldedCardSRC;
          this.card2SRC = this.cardPath + this.foldedCardSRC;
          this.isDisabled = true;
        }
 
       if ( this.currentPlayer.smAntee ) {
-        this.smallAnteClass = this.anteedClass;
+        this.smallAnteClass = this.isSelectedCSSClass;
        } else {
-        this.smallAnteClass = this.blindClass;
+        this.smallAnteClass = this.secondaryUnChecked;
        }
 
       if ( this.currentPlayer.bgAntee ) {
-        this.bigAnteeClass = this.anteedClass;
+        this.bigAnteeClass = this.isSelectedCSSClass;
        } else {
-        this.bigAnteeClass = this.blindClass;
+        this.bigAnteeClass = this.secondaryUnChecked;
+       }
+
+      if ( this.currentPlayer.hasChecked ) {
+         this.checkedClass = this.isSelectedCSSClass;
+       } else {
+         this.checkedClass = this.secondaryUnChecked;
        }
 
       if (this.currentPlayer.showCards) {
@@ -75,11 +84,15 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
        }
 
       if ( this.currentPlayer.dealer ) {
-         this.deallingClass = this.dealerClass;
+         this.deallingClass = this.isSelectedCSSClass;
        } else {
         this.deallingClass = 'btn btn-outline-success';
        }
     });
+  } else {
+    this.card1SRC = this.cardPath + this.foldedCardSRC;
+    this.card2SRC = this.cardPath + this.foldedCardSRC;
+    this.isDisabled = true;
   }
   }
 
@@ -99,7 +112,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
   }
 
-  changed(event: any) {
+  IsWinner(event: any) {
     if (event.target.checked) {
       this.broker.AddWinner(this.currentPlayer.docRef);
     } else {
@@ -109,7 +122,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
 
   Small() {
     if (!this.currentPlayer.smAntee && !this.currentPlayer.bgAntee) {
-      this.broker.Anteed((this.currentPlayer.stack - this.smallAmount),
+      this.broker.Bet((this.currentPlayer.stack - this.smallAmount),
                           this.currentPlayer.docRef,
                           this.currentPlayer.name,
                           this.smallAmount,
@@ -119,7 +132,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
 
   Big() {
     if (!this.currentPlayer.smAntee && !this.currentPlayer.bgAntee) {
-      this.broker.Anteed((this.currentPlayer.stack - this.bigAmount),
+      this.broker.Bet((this.currentPlayer.stack - this.bigAmount),
                           this.currentPlayer.docRef,
                           this.currentPlayer.name,
                           this.bigAmount,
@@ -129,15 +142,19 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
 
   FoldHand() {
     this.broker.FoldPlayer(this.currentPlayer.docRef);
+    this.broker.PushMessage(this.currentPlayer.name + ' folds');
     this.isDisabled = true;
   }
 
   Check() {
+    this.broker.CheckPlayer(this.currentPlayer.docRef);
     this.broker.PushMessage(this.currentPlayer.name + ' checks');
   }
 
   Dealer() {
-    this.broker.SetDealer(this.currentPlayer.docRef);
+    if (!this.isDisabled) {
+      this.broker.SetDealer(this.currentPlayer.docRef);
+    }
   }
 
   TurnOverCards() {
@@ -154,7 +171,7 @@ export class PlayerComponentComponent implements OnInit, OnChanges {
       this.broker.PushMessage(this.currentPlayer.name + ' you can not bet nothing. Try again....');
     } else {
       if (this.currentPlayer.stack - amount >= 0) {
-        this.broker.UpdatePlayerStack(this.currentPlayer.stack - amount, this.currentPlayer.docRef, this.currentPlayer.name, amount);
+        this.broker.Bet(this.currentPlayer.stack - amount, this.currentPlayer.docRef, this.currentPlayer.name, amount);
         this.betInput.nativeElement.value = '';
       } else {
         this.broker.PushMessage(this.currentPlayer.name + ' tried to bet more than he has...Try again');

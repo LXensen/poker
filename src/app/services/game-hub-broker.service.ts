@@ -1,8 +1,7 @@
-import { map } from 'rxjs/operators';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { TexasHoldEm } from './../models/texas-hold-em';
+import { Deck } from './../models/deck';
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Player } from './../models/player';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import * as firebase from 'firebase';
@@ -11,18 +10,14 @@ import * as firebase from 'firebase';
   providedIn: 'root'
 })
 export class GameHubBrokerService {
-  private holdem: TexasHoldEm;
+  private currentDeck: Deck;
   private HAND = 'Hand';
   private GAME = 'Game3';
   private BLUECARD = 'blue_back';
   private GRAYCARD = 'gray_back';
 
-  private smBlind = 0;
-  private bgBlind = 0;
-
   plyrsCol: Observable<any[]>;
   gameState: Observable<any>;
-
   handRef: AngularFirestoreDocument;
 
   constructor(protected firestore: AngularFirestore) {
@@ -37,11 +32,12 @@ export class GameHubBrokerService {
   }
 
   PushMessage(message: string) {
+    // tslint:disable-next-line:object-literal-shorthand
     this.handRef.update({message: message});
   }
 
-  NewTexasHoldEmGame(holdemGame: TexasHoldEm) {
-    this.holdem = holdemGame;
+  UseDeck(shouldUseDeck: boolean) {
+    this.handRef.update({useDeck: false});
   }
 
   SetDealer(playerRef: string) {
@@ -78,12 +74,12 @@ export class GameHubBrokerService {
     return this.firestore.collection(this.GAME).doc<Player>(docRef).valueChanges();
   }
 
-  CurrentHoldEmGame(): TexasHoldEm {
-    if (!this.holdem) {
-      this.holdem = new TexasHoldEm(1, 1);
-      this.holdem.Deck.Shuffle();
+  Deck(): Deck {
+    if (!this.currentDeck) {
+      this.currentDeck = new Deck();
+      console.log('new deck');
     }
-    return this.holdem;
+    return this.currentDeck;
   }
 
   ShowCards() {
@@ -111,8 +107,15 @@ export class GameHubBrokerService {
     playerref.update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
   }
 
+  CheckPlayer(player: string) {
+    // remove this player from the list of PlayingPlayers
+    debugger;
+    const playerref = this.firestore.collection(this.GAME).doc(player);
+    playerref.update({hasChecked: true});
+  }
+
   NewHand() {
-    let playerName = '';
+    // let playerName = '';
 
     this.handRef.get()
        .subscribe((docHandRef) => {
@@ -121,16 +124,23 @@ export class GameHubBrokerService {
             this.PushMessage('You have to declare at least one winner');
           } else {
             // update the winners stack with the pot, then do this
-            const pot = docHandRef.get('potsize');
+            let pot = docHandRef.get('potsize');
 
+            if ( winningPlayer.length === 2) {
+              pot = pot / 2;
+            }
             const increaseStacktBy = firebase.firestore.FieldValue.increment(Number(pot));
-            const playerref = this.firestore.collection(this.GAME).doc(winningPlayer[0]);
-            playerref.update({stack: increaseStacktBy});
 
-            this.firestore.collection(this.GAME).doc(winningPlayer[0]).get().subscribe(win => {
-              playerName = win.data().name;
-              this.PushMessage(playerName + ' wins the hand');
+            winningPlayer.forEach(player => {
+              const playerref = this.firestore.collection(this.GAME).doc(player);
+              playerref.update({stack: increaseStacktBy});
             });
+
+
+            // this.firestore.collection(this.GAME).doc(winningPlayer[0]).get().subscribe(win => {
+            //   playerName = win.data().name;
+            //   this.PushMessage(playerName + ' wins the hand');
+            // });
 
             this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
             .where('canBet', '==', true))
@@ -143,12 +153,26 @@ export class GameHubBrokerService {
                 batch.update(batchRef, {folded: false,
                   cardOne: '',
                   cardTwo: '',
+                  totalBet: 0,
                   showCards: false,
+                  hasChecked: false,
                   smAntee: false,
                   bgAntee: false,
                   dealer: false});
               });
               batch.commit().then(() => {
+                // make sure players with no money ( stack = 0 ) are set to canbet = false
+                this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
+                .where('stack', '<', 1))
+                .get()
+                .subscribe((players) => {
+                  players.forEach((player) => {
+                    if ( player.get('canBet') === true ) {
+                      const playerref = this.firestore.collection(this.GAME).doc(player.data().docRef);
+                      playerref.update({canBet: false, stack: 0});
+                    }
+                  });
+                });
                 // reset the hand
                 this.handRef.update({cardOne: this.BLUECARD,
                   cardTwo: this.BLUECARD,
@@ -160,14 +184,14 @@ export class GameHubBrokerService {
                   potsize: 0});
               });
             });
-            this.CurrentHoldEmGame().Deck.Shuffle();
           }
        });
   }
 
   DealHand() {
-    const refArray = new Array();
-    //  only deal to players that haven't folded
+    // shuffle the deck before dealing
+    this.Deck().Shuffle();
+    // should only get players that are still 'active'
     this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
         .where('folded', '==', false)
         .where('canBet', '==', true))
@@ -176,18 +200,13 @@ export class GameHubBrokerService {
           const batch = this.firestore.firestore.batch();
           playerRef.forEach((player) => {
           const batchRef = this.firestore.firestore.collection(this.GAME).doc(player.data().docRef);
-          // for (let i = 0; i < 2; i++) {
-            // const whichCard = i === 0 ? 'One' : 'Two';
-          const card = this.CurrentHoldEmGame().Deck.cards.pop();
-            // const dto = {}; dto['card' + whichCard] = card.url;
-            // batch.update(batchRef, dto);
+          const card = this.Deck().cards.pop();
           batch.update(batchRef, {cardOne: card.url});
           console.log(card.url + ' ' + player.data().name);
-          // }
+
         });
           batch.commit().then(() => {
-            // const msg = 'Hand dealt';
-            // this.PushMessage(msg);
+
           });
         });
 
@@ -201,7 +220,7 @@ export class GameHubBrokerService {
           const batch = this.firestore.firestore.batch();
           playerRef.forEach((player) => {
           const batchRef = this.firestore.firestore.collection(this.GAME).doc(player.data().docRef);
-          const card = this.CurrentHoldEmGame().Deck.cards.pop();
+          const card = this.Deck().cards.pop();
           batch.update(batchRef, {cardTwo: card.url});
         });
           batch.commit().then(() => {
@@ -211,55 +230,81 @@ export class GameHubBrokerService {
         });
   }
 
+  private ResetPlayersBetTotal() {
+    const batch = this.firestore.firestore.batch();
+
+    this.firestore.collection(this.GAME, ref => ref.where('gameRef', '==', this.GAME)
+    .where('folded', '==', false)
+    .where('canBet', '==', true))
+    .get()
+    .subscribe((playerRef) => {
+      playerRef.forEach((player) => {
+      const batchRef = this.firestore.firestore.collection(this.GAME).doc(player.data().docRef);
+      batch.update(batchRef, {totalBet: 0, hasChecked: false});
+    });
+      batch.commit().then(() => {
+
+      });
+    });
+
+  }
+
   DealTurn() {
-    this.CurrentHoldEmGame().Deck.cards.pop();
+    this.Deck().cards.pop();
 
-    this.handRef.update({cardFour: this.CurrentHoldEmGame().Deck.cards.pop().url});
+    this.handRef.update({cardFour: this.Deck().cards.pop().url});
 
+    // reset total bet
+    this.ResetPlayersBetTotal();
     this.PushMessage('Dealing turn');
   }
 
   DealRiver() {
-    this.CurrentHoldEmGame().Deck.cards.pop();
+    this.Deck().cards.pop();
 
-    this.handRef.update({cardFive: this.CurrentHoldEmGame().Deck.cards.pop().url});
+    this.handRef.update({cardFive: this.Deck().cards.pop().url});
 
+    // reset total bet
+    this.ResetPlayersBetTotal();
     this.PushMessage('Dealing river');
   }
 
   DealFlop() {
-    this.CurrentHoldEmGame().Deck.cards.pop();
+    this.Deck().cards.pop();
 
-    this.handRef.update({cardOne: this.CurrentHoldEmGame().Deck.cards.pop().url,
-      cardTwo: this.CurrentHoldEmGame().Deck.cards.pop().url,
-      cardThree: this.CurrentHoldEmGame().Deck.cards.pop().url});
+    this.handRef.update({cardOne: this.Deck().cards.pop().url,
+      cardTwo: this.Deck().cards.pop().url,
+      cardThree: this.Deck().cards.pop().url});
 
+    // reset total bet
+    this.ResetPlayersBetTotal();
     this.PushMessage('Dealing flop');
   }
 
-  UpdatePlayerStack(amount: number, player: string, name: string, betAmount: number) {
+  Bet(amount: number, player: string, name: string, betAmount: number, anteeType?: string) {
+    let msg = '';
+    const increaseBy = firebase.firestore.FieldValue.increment(Number(betAmount));
+
     const playerref = this.firestore.collection(this.GAME).doc(player);
-    playerref.update({stack: amount});
 
-    const increasePotBy = firebase.firestore.FieldValue.increment(Number(betAmount));
-    this.handRef.update({potsize: increasePotBy});
-
-    const msg = name + ' bets ' + betAmount;
-    this.PushMessage(msg);
-  }
-
-  Anteed(amount: number, player: string, name: string, betAmount: number, anteeType: string) {
-    const playerref = this.firestore.collection(this.GAME).doc(player);
     if ( anteeType === 'small' ) {
-      playerref.update({stack: amount, smAntee: true});
-    } else {
-      playerref.update({stack: amount, bgAntee: true});
+      playerref.update({stack: amount, smAntee: true, totalBet: increaseBy});
+      msg = name + ' anteed ' + betAmount;
     }
 
-    const increasePotBy = firebase.firestore.FieldValue.increment(Number(betAmount));
-    this.handRef.update({potsize: increasePotBy});
+    if ( anteeType === 'big' ) {
+      playerref.update({stack: amount, bgAntee: true, totalBet: increaseBy});
+      msg = name + ' anteed ' + betAmount;
+    }
 
-    const msg = name + ' anteed ' + betAmount;
+    // just a 'normal' bet
+    if (anteeType === undefined) {
+      playerref.update({stack: amount, totalBet: increaseBy});
+      msg = name + ' bets ' + betAmount;
+    }
+
+    this.handRef.update({potsize: increaseBy});
+
     this.PushMessage(msg);
   }
 
@@ -275,17 +320,7 @@ export class GameHubBrokerService {
   });
   }
 
-    StartGame(smallBlind: number, bigBlind: number, blindDuration: number) {
-    // players.forEach(player => {
-    //   // Get the document ref of a new player and set it
-    //   player.gameRef = this.GAME;
-    //   // this.firestore.collection(this.GAME).add({stack: player.stack, name: player.folded, gameRef: this.GAME});
-    //   this.firestore.collection(this.GAME).add(player)
-    //   .then((docRef) => {
-    //     debugger;
-    //     this.firestore.collection(this.GAME).doc(docRef.id).update({docRef: docRef.id});
-    //   });
-    // });
+  StartGame(smallBlind: number, bigBlind: number, blindDuration: number) {
     this.firestore.collection(this.GAME).doc('GameState').update({Ready: true, small: smallBlind, big: bigBlind, duration: blindDuration});
   }
 }

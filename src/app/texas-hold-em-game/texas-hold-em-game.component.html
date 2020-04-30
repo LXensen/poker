@@ -1,27 +1,4 @@
 
-<!-- <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">Stonebridge Poker</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-      <form class="form-inline mx-sm-3 mb-2">
-        <input class="form-control mr-sm-2" #buyin type="text" placeholder="Buy in" aria-label="Buy in">
-        <input class="form-control mr-sm-2" #playerName type="text" placeholder="Player" aria-label="Player">
-        <button type="button" class="btn btn-secondary my-2 my-sm-0" (click)="AddPlayer(playerName.value, buyin.value)">Add</button>     
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input class="form-control mr-sm-2" #blindDuration type="text" placeholder="Duration(mm)" aria-label="Duration">
-        <button class="btn btn-secondary my-2 my-sm-0" type="button" (click)="StartGame(blindDuration.value)">Start</button>   
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <button type="button" [ngClass]="isVisible" class="btn btn-outline-warning" >{{timeLeft}}</button>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{message}}</button>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{potsize}}</button>
-      </form>
-    </div>
-</nav> -->
 <div class="pos-f-t">
   <div class="collapse" id="navbarToggleExternalContent">
     <br /><br />
@@ -29,7 +6,11 @@
       <form class="form-inline mx-sm-3 mb-2">
         <input class="form-control mr-sm-2" #buyin type="text" placeholder="Buy in" aria-label="Buy in">
         <input class="form-control mr-sm-2" #playerName type="text" placeholder="Player" aria-label="Player">
-        <button type="button" class="btn btn-secondary my-2 my-sm-0" (click)="AddPlayer(playerName.value, buyin.value)">Add</button>     
+        <button type="button" class="btn btn-secondary my-2 my-sm-0" (click)="AddPlayer(playerName.value, buyin.value)">Add</button>&nbsp;&nbsp; 
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" (change)="Deck($event)">
+        <label class="form-check-label" for="defaultCheck1">
+          Deck
+        </label>
       </form>
     </div>
   </div>
@@ -39,10 +20,10 @@
     </button>
     <div >
       <form class="form-inline mx-sm-3 mb-2">
-        <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{message}}</button>
+        <!-- <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{message}}</button>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" [ngClass]="isVisible" class="btn btn-warning" >{{potsize}}</button>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
         <label class="sr-only" for="inlineFormInputName2">Small</label>
         <input type="text" #smallBlind class="form-control mr-sm-2" id="smallBlind" placeholder="Small" value="{{smallAmount}}">
       
@@ -59,7 +40,6 @@
 </div>
 
     <main role="main" class="container">
-    
     <div class="starter-template">
         <br /><br /><br /><br />
 
@@ -74,8 +54,6 @@
                 <button type="button" class="btn btn-secondary" (click)="NewHand()">New Hand - 6</button> 
               </div>  
             </div>
-
-
         </div>     
         <app-table-component #child ></app-table-component>
     </div>
